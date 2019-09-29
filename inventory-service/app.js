@@ -10,7 +10,7 @@ const port = process.env.PORT
 startApp();
 
 function startApp(){
-    app.get('/', (req, res) => res.send('Hello Daniel from product service!'));
+    app.get('/', (req, res) => res.send('Hello Daniel from inventory service!'));
 
     app.listen(port, () => console.log(`Example app listening on port ${port}`));
 }
