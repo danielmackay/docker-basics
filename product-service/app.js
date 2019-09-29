@@ -3,28 +3,45 @@
 const mysql = require('mysql');
 const express = require('express');
 const app = express();
-const port = process.env.PORT
-//const port = 3000
+const port = process.env.PORT || 3000;
+const test = process.env.test || '';
+const seconds = 1000;
 
-//connectToDb();
-startApp();
+let attempts = 0;
 
-function startApp(){
-    app.get('/', (req, res) => res.send('Hello Daniel from product service!'));
+function connect() {
+    attempts++;
 
-    app.listen(port, () => console.log(`Example app listening on port ${port}`));
-}
+    console.log('password', process.env.DATABASE_PASSWORD);
+    console.log('host', process.env.DATABASE_HOST);
+    console.log(`attempting to connect to DB time: ${attempts}`);
 
-function connectToDb(){
     const con = mysql.createConnection({
-        host: "mysql",
+        host: process.env.DATABASE_HOST,
         user: "root",
-        password: "Password1?",
-        //database: "Customers"
+        password: process.env.DATABASE_PASSWORD,
+        database: 'Products'
     });
-    
-    con.connect(function(err){
-        if (err)throw err;
-        console.log('Connected!');
-    })
+
+    con.connect(function (err) {
+        if (err) {
+            console.log("Error", err);
+            setTimeout(connect, 30 * seconds);
+        } else {
+            console.log('CONNECTED!');
+        }
+    });
+
+    con.on('error', function (err) {
+        if (err) {
+            console.log('shit happened :)');
+            connect()
+        }
+    });
+
 }
+connect();
+
+app.get('/', (req, res) => res.send(`Hello product service, changed ${test}`))
+
+app.listen(port, () => console.log(`Example app listening on port ${port}!`))
